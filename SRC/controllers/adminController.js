@@ -1,6 +1,7 @@
 // src/controllers/adminController.js
 
 import Order from "../models/order.model.js";
+import Product from "../models/product.model.js";
 
 const allowedStatuses = [
   "pending",
@@ -10,6 +11,59 @@ const allowedStatuses = [
   "delivered",
   "cancelled",
 ];
+
+const createAdminProduct = async (req, res) => {
+  try {
+    const {
+      name,
+      category,
+      price,
+      stock,
+      shortDescription,
+      description,
+      imageUrl,
+      modelUrl,
+      arEnabled,
+      featured,
+      brand,
+      specifications,
+    } = req.body;
+
+    if (!name || !category || !price || !stock || !description) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, category, price, stock, and description are required.",
+      });
+    }
+
+    const product = await Product.create({
+      name,
+      category,
+      price: Number(price),
+      stock: Number(stock),
+      shortDescription: shortDescription || "",
+      description,
+      images: imageUrl ? [imageUrl] : [],
+      modelUrl: modelUrl || "",
+      arEnabled: arEnabled ?? true,
+      featured: featured ?? false,
+      brand: brand || "",
+      specifications: specifications || {},
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Product created successfully.",
+      data: product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create product.",
+      error: error.message,
+    });
+  }
+};
 
 const allowedDispatchCompanies = [
   {
@@ -311,4 +365,5 @@ export {
   updateAdminOrderStatus,
   assignDispatchCompany,
   getDispatchCompanies,
+  createAdminProduct,
 };

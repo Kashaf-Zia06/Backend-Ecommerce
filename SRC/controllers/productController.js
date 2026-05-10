@@ -187,7 +187,50 @@ const createProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+
+    const {
+      name,
+      category,
+      price,
+      stock,
+      shortDescription,
+      description,
+      imageUrl,
+      modelUrl,
+      arEnabled,
+      featured,
+      brand,
+      specifications,
+      isActive,
+    } = req.body;
+
+    const updateData = {
+      name,
+      category,
+      price: Number(price),
+      stock: Number(stock),
+      shortDescription: shortDescription || "",
+      description,
+      modelUrl: modelUrl || "",
+      arEnabled: arEnabled ?? true,
+      featured: featured ?? false,
+      brand: brand || "",
+      specifications: specifications || {},
+    };
+
+    if (imageUrl !== undefined) {
+      updateData.images = imageUrl ? [imageUrl] : [];
+    }
+
+    if (isActive !== undefined) {
+      updateData.isActive = isActive;
+    }
+
+    Object.keys(updateData).forEach((key) => {
+      if (updateData[key] === undefined) {
+        delete updateData[key];
+      }
+    });
 
     const product = await Product.findByIdAndUpdate(id, updateData, {
       new: true,
