@@ -55,6 +55,8 @@ const getCart = async (req, res) => {
 
 const addToCart = async (req, res) => {
   try {
+    console.log("inside add to cart of cart contoller at backend")
+    console.log(req.body)
     const { productId } = req.body;
 
     if (!productId) {
@@ -124,7 +126,7 @@ const addToCart = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Product added to cart.",
-      cart,
+    cart: formatCartResponse(cart),
     });
   } catch (error) {
     return res.status(500).json({
@@ -188,7 +190,7 @@ const increaseQuantity = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Quantity increased.",
-      cart,
+      cart: formatCartResponse(cart),
     });
   } catch (error) {
     return res.status(500).json({
