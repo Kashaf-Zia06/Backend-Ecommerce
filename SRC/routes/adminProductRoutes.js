@@ -1,12 +1,15 @@
 import express from "express";
+
 import {
-  createProduct,
   updateProduct,
   deleteProduct,
   toggleProductStatus,
   getAllProductsAdmin,
   updateProductStock,
 } from "../controllers/productController.js";
+
+import { createAdminProduct } from "../controllers/adminController.js";
+
 import { protect, adminOnly } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
@@ -15,7 +18,10 @@ const router = express.Router();
 router.use(protect, adminOnly);
 
 router.get("/", getAllProductsAdmin);
-router.post("/", createProduct);
+
+// Add product by admin
+router.post("/add", createAdminProduct);
+
 router.put("/:id", updateProduct);
 router.delete("/:id", deleteProduct);
 router.patch("/:id/toggle-status", toggleProductStatus);

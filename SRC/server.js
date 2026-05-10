@@ -8,12 +8,14 @@ import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
-import adminProductRoutes from "./routes/adminProductRoutes.js";
+
 import adminFavoriteRoutes from "./routes/adminFavoriteRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminOrderRoutes from "./routes/adminOrderRoutes.js";
 import adminUserRoutes from "./routes/adminUserRoutes.js";
+import adminProductRoutes from "./routes/adminProductRoutes.js";
+
 
 dotenv.config();
 
@@ -41,12 +43,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/favorites", favoriteRoutes);
-app.use("/api/admin/products", adminProductRoutes);
+
 app.use("/api/admin/favorites", adminFavoriteRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/admin/orders", adminOrderRoutes);
 app.use("/api/admin/users", adminUserRoutes);
+
+app.use("/api/admin/products", adminProductRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
