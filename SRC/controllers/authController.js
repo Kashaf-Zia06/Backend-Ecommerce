@@ -41,7 +41,8 @@ const sendAuthResponse = async (res, user, message, statusCode = 200) => {
 
 const signup = async (req, res) => {
   try {
-    console.log("inside signup")
+    console.log("inside signup at backend auth controller")
+    console.log(req.body)
     const { fullName, email, password, phoneNumber } = req.body || {};
 
     const validationErrors = validateSignupInput({
@@ -91,6 +92,8 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    console.log("isnide login of controller at backend")
+    console.log(req.body)
     const { email, password } = req.body || {};
 
     const validationErrors = validateLoginInput({
