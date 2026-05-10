@@ -6,6 +6,10 @@ import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import favoriteRoutes from "./routes/favoriteRoutes.js";
+import adminProductRoutes from "./routes/adminProductRoutes.js";
+import adminFavoriteRoutes from "./routes/adminFavoriteRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -29,6 +33,10 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/favorites", favoriteRoutes);
+app.use("/api/admin/products", adminProductRoutes);
+app.use("/api/admin/favorites", adminFavoriteRoutes);
 
 const PORT = process.env.PORT || 5000;
 
