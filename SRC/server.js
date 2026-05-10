@@ -10,8 +10,13 @@ import productRoutes from "./routes/productRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import adminProductRoutes from "./routes/adminProductRoutes.js";
 import adminFavoriteRoutes from "./routes/adminFavoriteRoutes.js";
+import cartRoutes from "./routes/cartRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import adminOrderRoutes from "./routes/adminOrderRoutes.js";
+import adminUserRoutes from "./routes/adminUserRoutes.js";
 
 dotenv.config();
+
 connectDB();
 
 const app = express();
@@ -22,6 +27,7 @@ app.use(
     credentials: true,
   })
 );
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -37,7 +43,10 @@ app.use("/api/products", productRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/admin/products", adminProductRoutes);
 app.use("/api/admin/favorites", adminFavoriteRoutes);
-
+app.use("/api/cart", cartRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/admin/orders", adminOrderRoutes);
+app.use("/api/admin/users", adminUserRoutes);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
