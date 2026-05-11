@@ -33,6 +33,8 @@ const testProducts = async () => {
       console.log(`   Stock: ${product.stock}`);
       console.log(`   Active: ${product.isActive}`);
       console.log(`   Images: ${product.images?.length || 0}`);
+      console.log(`   Model URL: ${product.modelUrl || 'Not set'}`);
+      console.log(`   AR Enabled: ${product.arEnabled !== undefined ? product.arEnabled : 'Not set'}`);
       console.log('');
     });
 

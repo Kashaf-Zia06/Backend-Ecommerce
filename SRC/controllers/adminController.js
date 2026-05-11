@@ -22,11 +22,18 @@ const createAdminProduct = async (req, res) => {
       shortDescription,
       description,
       imageUrl,
+      images,
       modelUrl,
       arEnabled,
       featured,
       brand,
       specifications,
+      rating,
+      numReviews,
+      material,
+      isActive,
+      tags,
+      colors,
     } = req.body;
 
     if (!name || !category || !price || !stock || !description) {
@@ -36,6 +43,14 @@ const createAdminProduct = async (req, res) => {
       });
     }
 
+    // Handle images: accept both 'images' array and 'imageUrl' string
+    let productImages = [];
+    if (images && Array.isArray(images) && images.length > 0) {
+      productImages = images;
+    } else if (imageUrl) {
+      productImages = [imageUrl];
+    }
+
     const product = await Product.create({
       name,
       category,
@@ -43,12 +58,18 @@ const createAdminProduct = async (req, res) => {
       stock: Number(stock),
       shortDescription: shortDescription || "",
       description,
-      images: imageUrl ? [imageUrl] : [],
+      images: productImages,
       modelUrl: modelUrl || "",
       arEnabled: arEnabled ?? true,
       featured: featured ?? false,
       brand: brand || "",
       specifications: specifications || {},
+      rating: rating || 0,
+      numReviews: numReviews || 0,
+      material: material || "",
+      isActive: isActive ?? true,
+      tags: tags || [],
+      colors: colors || [],
     });
 
     return res.status(201).json({
