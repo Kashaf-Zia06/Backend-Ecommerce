@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/server.js",
-    "start": "node src/server.js",
-    "create-admin": "node src/utils/createAdmin.js",
-    "seed-products": "node src/utils/seedProducts.js",
+    "dev": "nodemon SRC/server.js",
+    "start": "node SRC/server.js",
+    "create-admin": "node SRC/utils/createAdmin.js",
+    "seed-products": "node SRC/utils/seedProducts.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
