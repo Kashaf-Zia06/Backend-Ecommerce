@@ -4,7 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import connectDB from "./config/db.js";
-import authRoutes from "./routes/authRoutes.js";
+import authRoutes from "./routes/authroutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
@@ -65,8 +65,14 @@ app.use("/api/admin/orders", adminOrderRoutes);
 app.use("/api/admin/users", adminUserRoutes);
 
 app.use("/api/admin/products", adminProductRoutes);
-const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// For Vercel serverless deployment
+export default app;
+
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
