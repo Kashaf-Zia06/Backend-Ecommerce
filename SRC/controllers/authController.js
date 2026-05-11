@@ -39,10 +39,62 @@ const sendAuthResponse = async (res, user, message, statusCode = 200) => {
   });
 };
 
+// const signup = async (req, res) => {
+//   try {
+//     console.log("inside signup at backend auth controller")
+//     console.log(req.body)
+//     const { fullName, email, password, phoneNumber } = req.body || {};
+
+//     const validationErrors = validateSignupInput({
+//       fullName,
+//       email,
+//       password,
+//       phoneNumber,
+//     });
+
+//     if (validationErrors.length > 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: validationErrors[0],
+//         errors: validationErrors,
+//       });
+//     }
+
+//     const existingUser = await User.findOne({
+//       email: email.trim().toLowerCase(),
+//     });
+
+//     if (existingUser) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "An account with this email already exists.",
+//       });
+//     }
+
+//     const user = await User.create({
+//       fullName: fullName.trim(),
+//       email: email.trim().toLowerCase(),
+//       phoneNumber: phoneNumber.trim(),
+//       password,
+//       role: "user",
+//     });
+
+//     return sendAuthResponse(res, user, "Signup successful.", 201);
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: "Signup failed.",
+//       error: error.message,
+//     });
+//   }
+// };
+
+
 const signup = async (req, res) => {
   try {
-    console.log("inside signup at backend auth controller")
-    console.log(req.body)
+    console.log("inside signup at backend auth controller");
+    console.log(req.body);
+
     const { fullName, email, password, phoneNumber } = req.body || {};
 
     const validationErrors = validateSignupInput({
@@ -60,8 +112,18 @@ const signup = async (req, res) => {
       });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+    const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+
+    if (adminEmail && normalizedEmail === adminEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "This email is reserved for admin. Please use another email.",
+      });
+    }
+
     const existingUser = await User.findOne({
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
     });
 
     if (existingUser) {
@@ -73,7 +135,7 @@ const signup = async (req, res) => {
 
     const user = await User.create({
       fullName: fullName.trim(),
-      email: email.trim().toLowerCase(),
+      email: normalizedEmail,
       phoneNumber: phoneNumber.trim(),
       password,
       role: "user",
@@ -166,34 +228,47 @@ const adminLogin = async (req, res) => {
       });
     }
 
-    const admin = await User.findOne({
-      email: email.trim().toLowerCase(),
-    }).select("+password +refreshToken");
+    const normalizedEmail = email.trim().toLowerCase();
+    const envAdminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+    const envAdminPassword = process.env.ADMIN_PASSWORD;
 
-    if (!admin || admin.role !== "admin") {
+    if (!envAdminEmail || !envAdminPassword) {
+      return res.status(500).json({
+        success: false,
+        message: "Admin credentials are not configured on the server.",
+      });
+    }
+
+    if (normalizedEmail !== envAdminEmail || password !== envAdminPassword) {
       return res.status(401).json({
         success: false,
         message: "Invalid admin credentials.",
       });
     }
 
-    if (admin.isBlocked) {
-      return res.status(403).json({
-        success: false,
-        message: "Your admin account has been blocked.",
-      });
-    }
+    const accessToken = jwt.sign(
+      {
+        id: "env-admin",
+        role: "admin",
+        email: envAdminEmail,
+      },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || "1d",
+      }
+    );
 
-    const isPasswordCorrect = await admin.matchPassword(password);
-
-    if (!isPasswordCorrect) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid admin credentials.",
-      });
-    }
-
-    return sendAuthResponse(res, admin, "Admin login successful.");
+    return res.status(200).json({
+      success: true,
+      message: "Admin login successful.",
+      accessToken,
+      user: {
+        _id: "env-admin",
+        fullName: process.env.ADMIN_NAME || "Admin",
+        email: envAdminEmail,
+        role: "admin",
+      },
+    });
   } catch (error) {
     return res.status(500).json({
       success: false,
