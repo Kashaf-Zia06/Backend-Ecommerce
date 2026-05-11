@@ -8,6 +8,7 @@ import {
   cancelSimulationOrder,
   getMyOrders,
   getOrderById,
+  createCODOrder,
 } from "../controllers/paymentController.js";
 
 import { protect } from "../middlewares/authMiddleware.js";
@@ -27,6 +28,8 @@ router.patch(
   protect,
   cancelSimulationOrder
 );
+
+router.post("/cod/create-order", protect, createCODOrder);
 
 router.get("/orders", protect, getMyOrders);
 

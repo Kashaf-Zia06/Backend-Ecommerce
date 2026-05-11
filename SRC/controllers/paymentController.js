@@ -313,10 +313,109 @@ const getOrderById = async (req, res) => {
   }
 };
 
+const createCODOrder = async (req, res) => {
+  try {
+    const { shippingAddress } = req.body;
+
+    if (
+      !shippingAddress ||
+      !shippingAddress.fullName ||
+      !shippingAddress.email ||
+      !shippingAddress.phone ||
+      !shippingAddress.address ||
+      !shippingAddress.city
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Complete shipping address is required.",
+      });
+    }
+
+    const cart = await Cart.findOne({ user: req.user._id });
+
+    if (!cart || cart.items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Cart is empty.",
+      });
+    }
+
+    const checkedItems = [];
+
+    for (const cartItem of cart.items) {
+      const product = await Product.findById(cartItem.product);
+
+      if (!product || !product.isActive) {
+        return res.status(400).json({
+          success: false,
+          message: `${cartItem.name} is no longer available.`,
+        });
+      }
+
+      if (cartItem.quantity > product.stock) {
+        return res.status(400).json({
+          success: false,
+          message: `Only ${product.stock} items available for ${product.name}.`,
+        });
+      }
+
+      checkedItems.push({
+        product: product._id,
+        name: product.name,
+        price: product.price,
+        imageUrl: product.images?.[0] || "",
+        quantity: cartItem.quantity,
+      });
+    }
+
+    const summary = calculateSummary(checkedItems);
+
+    // Reduce stock for COD orders
+    for (const item of checkedItems) {
+      await Product.findByIdAndUpdate(item.product, {
+        $inc: { stock: -item.quantity },
+      });
+    }
+
+    // Create COD order with "placed" status since payment will be on delivery
+    const order = await Order.create({
+      user: req.user._id,
+      items: checkedItems,
+      shippingAddress,
+      subtotal: summary.subtotal,
+      tax: summary.tax,
+      shippingFee: summary.shippingFee,
+      total: summary.total,
+      paymentMethod: "cod",
+      paymentStatus: "pending", // Will be paid on delivery
+      orderStatus: "placed", // Order is placed immediately for COD
+    });
+
+    // Clear the cart after successful order
+    await Cart.findOneAndUpdate(
+      { user: req.user._id },
+      { $set: { items: [] } }
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: "COD order placed successfully.",
+      order,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to create COD order.",
+      error: error.message,
+    });
+  }
+};
+
 export {
   createSimulationOrder,
   confirmSimulationPayment,
   cancelSimulationOrder,
   getMyOrders,
   getOrderById,
+  createCODOrder,
 };
